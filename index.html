@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8eee7">
+  <title>Для тебя — с любовью</title>
+  <style>
+    /* Основные цвета и размеры: их удобно менять здесь. */
+    :root {
+      --cream: #fbf3ec;
+      --paper: #fffaf5;
+      --rose: #bd5265;
+      --rose-dark: #713044;
+      --green: #355b48;
+      --open-duration: 720ms;
+      --letter-duration: 900ms;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100svh;
+      overflow-x: hidden;
+      color: #583d41;
+      background:
+        radial-gradient(ellipse at 50% 42%, rgba(255,255,255,.92) 0%, rgba(255,255,255,.35) 38%, transparent 68%),
+        linear-gradient(145deg, #f8eee7, #f4e3df 55%, #f7ede3);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    body::before, body::after {
+      position: fixed;
+      z-index: -1;
+      width: 23rem;
+      height: 23rem;
+      content: "";
+      border: 1px solid rgba(164, 104, 111, .11);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    body::before { top: -13rem; left: -9rem; box-shadow: 0 0 0 28px rgba(255,255,255,.12), 0 0 0 56px rgba(255,255,255,.1); }
+    body::after { right: -14rem; bottom: -16rem; width: 34rem; height: 34rem; }
+
+    .page {
+      display: grid;
+      min-height: 100svh;
+      place-items: center;
+      padding: 28px 18px 34px;
+    }
+
+    .scene {
+      position: relative;
+      display: flex;
+      width: min(100%, 620px);
+      min-height: 650px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 9px;
+      color: #a66c70;
+      font: 600 10px/1.5 system-ui, sans-serif;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      color: #653d48;
+      font-size: clamp(26px, 5vw, 37px);
+      font-weight: 400;
+      letter-spacing: .015em;
+    }
+
+    .subtitle {
+      margin: 11px 0 0;
+      color: #9c7776;
+      font-size: 15px;
+      font-style: italic;
+    }
+
+    .stage {
+      position: relative;
+      width: min(100%, 500px);
+      height: 470px;
+      margin-top: 8px;
+      isolation: isolate;
+    }
+
+    .envelope {
+      position: absolute;
+      z-index: 3;
+      right: 50%;
+      bottom: 56px;
+      width: min(78vw, 340px);
+      height: 222px;
+      padding: 0;
+      transform: translateX(50%);
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      filter: drop-shadow(0 20px 20px rgba(94, 55, 60, .15));
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .envelope:focus-visible, .action:focus-visible {
+      outline: 3px solid #b65b6c;
+      outline-offset: 6px;
+    }
+
+    .envelope-back {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      border-radius: 8px;
+      background: linear-gradient(145deg, #eac9c1, #d9a8a6);
+    }
+    .envelope-back::before, .envelope-back::after {
+      position: absolute;
+      bottom: -1px;
+      width: 0;
+      height: 0;
+      content: "";
+      border-top: 111px solid transparent;
+    }
+    .envelope-back::before { left: 0; border-right: 174px solid #e8c1ba; }
+    .envelope-back::after { right: 0; border-left: 174px solid #edcec6; }
+
+    .envelope-front {
+      position: absolute;
+      z-index: 4;
+      inset: 0;
+      overflow: hidden;
+      border-radius: 8px;
+      background: linear-gradient(145deg, transparent 49.8%, #d7a5a4 50%);
+      clip-path: polygon(0 0, 50% 56%, 100% 0, 100% 100%, 0 100%);
+    }
+    .envelope-front::before {
+      position: absolute;
+      inset: 0;
+      content: "";
+      background: linear-gradient(35deg, #e4b7b2, #f0d1c8);
+      clip-path: polygon(0 0, 50% 56%, 0 100%);
+    }
+    .envelope-front::after {
+      position: absolute;
+      inset: 0;
+      content: "";
+      background: linear-gradient(-35deg, #e8c0b9, #f2d8cf);
+      clip-path: polygon(100% 0, 50% 56%, 100% 100%);
+    }
+
+    .envelope-flap {
+      position: absolute;
+      z-index: 5;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 120px;
+      transform-origin: 50% 0;
+      transition: transform var(--open-duration) cubic-bezier(.2,.7,.25,1), z-index 1ms 360ms;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      background: linear-gradient(155deg, #f4d9d0, #e6bdb7);
+      backface-visibility: hidden;
+    }
+
+    .seal {
+      position: absolute;
+      z-index: 6;
+      top: 90px;
+      left: 50%;
+      display: grid;
+      width: 44px;
+      height: 44px;
+      transform: translateX(-50%);
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.53);
+      border-radius: 50%;
+      color: #fff5ed;
+      background: radial-gradient(circle at 35% 30%, #c56a75, #a43e58 70%);
+      box-shadow: 0 3px 8px rgba(109, 46, 61, .22), inset 0 1px 3px rgba(255,255,255,.35);
+      font-size: 21px;
+      transition: opacity 300ms ease, transform 300ms ease;
+    }
+
+    .hint {
+      position: absolute;
+      z-index: 7;
+      right: 0;
+      bottom: -38px;
+      left: 0;
+      color: #9c6c70;
+      font: 500 11px/1.4 system-ui, sans-serif;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      transition: opacity 250ms ease;
+    }
+
+    .letter {
+      position: absolute;
+      z-index: 2;
+      right: 50%;
+      bottom: 90px;
+      display: flex;
+      width: min(78vw, 326px);
+      height: 345px;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 15px 12px;
+      transform: translate(50%, 80px) scale(.94);
+      transform-origin: 50% 100%;
+      border: 1px solid rgba(177, 128, 119, .2);
+      border-radius: 5px;
+      opacity: 0;
+      background:
+        linear-gradient(90deg, transparent 24px, rgba(214,165,155,.12) 25px, transparent 26px),
+        linear-gradient(var(--paper), #fff7f0);
+      box-shadow: 0 8px 22px rgba(95, 55, 58, .12);
+      transition: transform var(--letter-duration) cubic-bezier(.16,1,.3,1), opacity 360ms ease;
+      pointer-events: none;
+    }
+
+    .letter::before {
+      position: absolute;
+      inset: 9px;
+      border: 1px solid rgba(185, 133, 123, .16);
+      content: "";
+      pointer-events: none;
+    }
+
+    .letter-mark {
+      z-index: 1;
+      color: #c28a84;
+      font-size: 10px;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+    }
+
+    .flower-art {
+      z-index: 1;
+      display: block;
+      width: 218px;
+      height: 228px;
+      margin: 1px 0 -3px;
+      overflow: visible;
+    }
+
+    .single-rose {
+      opacity: 0;
+      transform: translateY(12px) scale(.84);
+      transform-origin: center;
+      transition: opacity 700ms ease, transform 850ms cubic-bezier(.16,1,.3,1);
+    }
+    .single-rose .stem-line {
+      stroke-dasharray: 220;
+      stroke-dashoffset: 220;
+      transition: stroke-dashoffset 1.1s ease 250ms;
+    }
+    .single-rose .leaf-line { opacity: 0; transition: opacity .55s ease .9s; }
+    .single-rose .petals { transform: scale(.15); transform-origin: 200px 57px; transition: transform .8s cubic-bezier(.2,.8,.2,1) .8s; }
+
+    .bouquet {
+      opacity: 0;
+      transform: translateY(20px) scale(.75);
+      transform-origin: 50% 88%;
+      transition: opacity 500ms ease, transform 900ms cubic-bezier(.16,1,.3,1);
+    }
+    .bouquet .bouquet-stem {
+      stroke-dasharray: 260;
+      stroke-dashoffset: 260;
+      transition: stroke-dashoffset 700ms ease;
+    }
+    .bouquet .flower-head {
+      transform: scale(.18);
+      transform-box: fill-box;
+      transform-origin: center;
+      transition: transform 650ms cubic-bezier(.2,.9,.25,1);
+    }
+
+    .love-note {
+      z-index: 1;
+      margin: -2px 0 0;
+      color: #8d3c54;
+      font-family: "Segoe Script", "Brush Script MT", cursive;
+      font-size: clamp(25px, 6vw, 31px);
+      font-style: italic;
+      line-height: 1.1;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 850ms ease 1.1s, transform 850ms ease 1.1s;
+    }
+
+    .opened .envelope-flap {
+      z-index: 1;
+      transform: rotateX(180deg);
+    }
+    .opened .seal { opacity: 0; transform: translateX(-50%) scale(.6); }
+    .opened .hint { opacity: 0; }
+    .opened .letter {
+      z-index: 4;
+      transform: translate(50%, 0) scale(1);
+      opacity: 1;
+      transition-delay: 250ms;
+      pointer-events: auto;
+    }
+    .opened .single-rose { opacity: 1; transform: translateY(0) scale(1); }
+    .opened .single-rose .stem-line { stroke-dashoffset: 0; }
+    .opened .single-rose .leaf-line { opacity: 1; }
+    .opened .single-rose .petals { transform: scale(1); }
+    .opened .love-note { opacity: 1; transform: translateY(0); }
+
+    .show-bouquet .single-rose {
+      opacity: 0;
+      transform: translateY(8px) scale(.56) rotate(7deg);
+    }
+    .show-bouquet .bouquet { opacity: 1; transform: translateY(0) scale(1); }
+    .show-bouquet .bouquet .bouquet-stem { stroke-dashoffset: 0; }
+    .show-bouquet .bouquet .flower-head { transform: scale(1); }
+
+    .actions {
+      position: relative;
+      z-index: 5;
+      min-height: 48px;
+      margin-top: -1px;
+    }
+    .action {
+      min-width: 174px;
+      padding: 12px 21px;
+      border: 1px solid #a95062;
+      border-radius: 30px;
+      color: #fff9f5;
+      background: linear-gradient(135deg, #b85b6c, #984455);
+      box-shadow: 0 6px 15px rgba(130, 57, 72, .18);
+      cursor: pointer;
+      font: 500 12px/1.2 system-ui, sans-serif;
+      letter-spacing: .07em;
+      transition: transform 180ms ease, box-shadow 180ms ease, opacity 300ms ease;
+    }
+    .action:hover { transform: translateY(-2px); box-shadow: 0 9px 18px rgba(130, 57, 72, .23); }
+    .action:active { transform: translateY(0); }
+    .action[hidden] { display: none; }
+
+    .footer-note {
+      margin: 7px 0 0;
+      color: #ae8c85;
+      font-size: 12px;
+      font-style: italic;
+    }
+
+    @media (max-width: 480px) {
+      .page { padding: 18px 12px 22px; }
+      .scene { min-height: 590px; }
+      .stage { height: 425px; margin-top: 12px; }
+      .envelope { bottom: 45px; height: 190px; }
+      .envelope-back::before { border-top-width: 95px; border-right-width: 40vw; }
+      .envelope-back::after { border-top-width: 95px; border-left-width: 40vw; }
+      .envelope-flap { height: 104px; }
+      .seal { top: 76px; width: 40px; height: 40px; }
+      .letter { bottom: 75px; height: 315px; padding-top: 16px; }
+      .flower-art { width: 195px; height: 199px; }
+      .opened .letter { transform: translate(50%, 0) scale(1); }
+      .hint { bottom: -35px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="scene" aria-label="Романтическое письмо">
+      <p class="eyebrow">Маленькое послание</p>
+      <h1>Для тебя</h1>
+      <p class="subtitle">Открой, когда захочется улыбнуться</p>
+
+      <div class="stage" id="stage">
+        <div class="letter" aria-live="polite">
+          <span class="letter-mark">с любовью</span>
+
+          <!-- Иллюстрации цветов собраны в SVG; оттенки можно менять в градиентах ниже. -->
+          <svg class="flower-art" viewBox="0 0 400 400" role="img" aria-label="Роза, превращающаяся в букет">
+            <defs>
+              <linearGradient id="petalRed" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#f28a8b"/>
+                <stop offset=".48" stop-color="#cf405a"/>
+                <stop offset="1" stop-color="#8e2947"/>
+              </linearGradient>
+              <linearGradient id="petalPink" x1="0" y1="0" x2=".8" y2="1">
+                <stop offset="0" stop-color="#ffc0b5"/>
+                <stop offset=".55" stop-color="#e97886"/>
+                <stop offset="1" stop-color="#b83d5c"/>
+              </linearGradient>
+              <linearGradient id="petalCoral" x1=".1" y1="0" x2=".9" y2="1">
+                <stop offset="0" stop-color="#f9aa92"/>
+                <stop offset=".55" stop-color="#e75d67"/>
+                <stop offset="1" stop-color="#a8314c"/>
+              </linearGradient>
+              <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+                <stop stop-color="#6f9a69"/>
+                <stop offset="1" stop-color="#315943"/>
+              </linearGradient>
+              <linearGradient id="wrap" x1="0" y1="0" x2="1" y2="1">
+                <stop stop-color="#f6ded0"/>
+                <stop offset=".5" stop-color="#eac6bc"/>
+                <stop offset="1" stop-color="#d9a9a7"/>
+              </linearGradient>
+              <symbol id="rose-head" viewBox="0 0 120 120">
+                <g stroke="#a83c51" stroke-opacity=".22" stroke-width="1">
+                  <path fill="url(#petalRed)" d="M60 62C29 59 20 43 29 28c6-11 21-12 32-1 7-18 25-22 37-11 13 12 6 31-10 42 21 5 29 21 19 34-10 13-27 9-40-7-8 22-26 26-38 15-12-11-8-27 5-38-22-2-31-16-23-29"/>
+                  <path fill="url(#petalPink)" d="M61 62C46 51 43 39 52 31c8-7 18-3 21 7 11-11 22-7 23 3 2 9-6 17-17 22 13 7 14 17 7 23-8 6-17 1-23-9-5 13-16 16-23 9-7-7-3-17 5-24-13 0-19-9-14-17 4-7 13-6 20-1"/>
+                  <path fill="url(#petalCoral)" d="M61 62c-9-8-8-16-2-19 6-3 11 1 11 7 7-6 13-3 12 3 0 5-5 8-11 10 7 4 7 10 2 12-4 2-9-1-11-6-3 7-9 8-12 4-3-4 0-9 5-11-7-1-9-5-6-9 3-3 8-2 12 1"/>
+                </g>
+                <path d="M59 60c4-5 9-4 10 0s-4 7-8 8c5 2 4 7 0 8" fill="none" stroke="#7d2742" stroke-width="2.4" stroke-linecap="round"/>
+                <g fill="#ffd7b1" opacity=".8">
+                  <circle cx="39" cy="33" r="2"/><circle cx="83" cy="25" r="1.8"/><circle cx="93" cy="71" r="1.5"/>
+                </g>
+              </symbol>
+            </defs>
+
+            <!-- Одна роза: стебель прорисовывается, затем распускаются листья и лепестки. -->
+            <g class="single-rose">
+              <path class="stem-line" d="M202 72C205 154 196 218 203 323" fill="none" stroke="#416c4d" stroke-width="7" stroke-linecap="round"/>
+              <path d="M201 174C170 145 146 154 145 177c20 13 39 14 56 7-18 13-24 29-19 42 21-6 31-20 23-41" fill="url(#leaf)" stroke="#315943" stroke-width="2"/>
+              <path class="leaf-line" d="M148 174c20 5 36 13 54 28m1-24c-7-5-15-12-23-19" fill="none" stroke="#a9c28d" stroke-width="2" stroke-linecap="round"/>
+              <path d="M204 242c27-29 49-25 55-7-13 20-31 28-54 25 18 2 31 14 30 29-22 3-37-8-39-29" fill="url(#leaf)" stroke="#315943" stroke-width="2"/>
+              <path class="leaf-line" d="M254 239c-15 12-31 23-50 37m48-33c-7-1-17-1-25 1" fill="none" stroke="#a9c28d" stroke-width="2" stroke-linecap="round"/>
+              <path d="M199 97c-22-11-28-27-15-35 12 2 19 11 19 27 3-21 17-29 27-21 4 13-2 24-19 33" fill="#6f995e" stroke="#416c4d" stroke-width="2"/>
+              <use href="#rose-head" x="143" y="0" width="116" height="116"/>
+            </g>
+
+            <!-- Букет появляется поверх розы: несколько раскрытых бутонов, зелень и бумажная обёртка. -->
+            <g class="bouquet">
+              <g fill="url(#leaf)" stroke="#315943" stroke-width="2">
+                <path d="M195 311c-61-32-89-17-87 14 34 15 67 11 91-8-29 22-38 43-25 61 34-12 49-34 34-62"/>
+                <path d="M211 316c47-43 78-35 82-6-28 25-58 31-88 16 35 12 52 31 45 52-36 2-61-17-60-50"/>
+                <path d="M195 286c-37-45-68-42-78-15 24 28 54 39 86 31-36 3-57 18-55 40 34 11 63-2 73-33"/>
+                <path d="M210 286c31-52 62-55 77-31-18 32-45 49-79 47 37-5 61 6 64 28-31 18-63 11-81-17"/>
+                <path d="M199 275c-11-46-2-69 11-83 14 17 20 38 6 71"/>
+              </g>
+              <g fill="none" stroke="#a8bf8d" stroke-width="2" stroke-linecap="round">
+                <path d="M112 302c24 3 52 12 81 30m-78-28c10 9 18 18 25 27M287 300c-26 9-53 21-78 41m76-38c-12 10-19 19-25 28M122 280c25 15 46 27 70 33m85-40c-22 19-43 30-73 40"/>
+              </g>
+              <g fill="none" stroke="#416c4d" stroke-width="7" stroke-linecap="round">
+                <path class="bouquet-stem" d="M199 183c-3 49-5 93-3 158"/>
+                <path class="bouquet-stem" d="M164 151c12 50 22 108 33 190"/>
+                <path class="bouquet-stem" d="M236 153c-13 53-29 112-39 188"/>
+                <path class="bouquet-stem" d="M133 186c25 42 45 89 65 151"/>
+                <path class="bouquet-stem" d="M267 188c-25 48-49 99-69 149"/>
+              </g>
+              <g>
+                <use class="flower-head" href="#rose-head" x="151" y="66" width="100" height="100"/>
+                <use class="flower-head" href="#rose-head" x="92" y="112" width="91" height="91"/>
+                <use class="flower-head" href="#rose-head" x="222" y="108" width="95" height="95"/>
+                <use class="flower-head" href="#rose-head" x="126" y="157" width="77" height="77"/>
+                <use class="flower-head" href="#rose-head" x="205" y="158" width="78" height="78"/>
+              </g>
+              <path d="M118 214Q200 246 283 212l-30 128q-50 25-104 0z" fill="url(#wrap)" stroke="#d3a29d" stroke-width="2"/>
+              <path d="M118 214q38 34 80 37 46-3 85-39l-23 40q-57 29-117-1z" fill="#f7e4d8" opacity=".88"/>
+              <path d="M196 251c-17 22-24 37-28 56 18-4 29-15 32-31 8 17 20 25 36 24-5-25-17-42-40-49" fill="#ac5263"/>
+              <path d="M197 254c-4 17-5 34 2 47m-2-27c-9-9-17-13-27-15m29 23c10-8 19-11 28-12" fill="none" stroke="#e8b3aa" stroke-width="2"/>
+              <path d="M137 232l17 106m106-105-19 104" fill="none" stroke="#fff5eb" stroke-width="2" opacity=".65"/>
+            </g>
+          </svg>
+
+          <p class="love-note">I love you</p>
+        </div>
+
+        <button class="envelope" id="envelope" type="button" aria-label="Открыть письмо">
+          <span class="envelope-back"></span>
+          <span class="envelope-flap"></span>
+          <span class="seal" aria-hidden="true">♥</span>
+          <span class="envelope-front"></span>
+          <span class="hint">Нажми, чтобы открыть</span>
+        </button>
+      </div>
+
+      <div class="actions">
+        <button class="action" id="bouquetButton" type="button" hidden>Превратить в букет</button>
+      </div>
+      <p class="footer-note">Тепло, которое всегда с тобой</p>
+    </section>
+  </main>
+
+  <script>
+    // Измените эту задержку, если хотите настроить время до появления букета.
+    const AUTO_BOUQUET_DELAY = 6500;
+
+    const stage = document.querySelector("#stage");
+    const envelope = document.querySelector("#envelope");
+    const bouquetButton = document.querySelector("#bouquetButton");
+    let bouquetTimer;
+    let opened = false;
+    let bouquetShown = false;
+
+    function showBouquet() {
+      if (!opened) return;
+      window.clearTimeout(bouquetTimer);
+      if (bouquetShown) {
+        // Переключение класса перезапускает распускание букета по нажатию.
+        stage.classList.remove("show-bouquet");
+        void stage.offsetWidth;
+      }
+      stage.classList.add("show-bouquet");
+      bouquetShown = true;
+      bouquetButton.textContent = "Ещё букетик тебе)";
+    }
+
+    envelope.addEventListener("click", () => {
+      if (opened) return;
+      opened = true;
+      stage.classList.add("opened");
+      envelope.setAttribute("aria-label", "Письмо открыто");
+      bouquetButton.hidden = false;
+      bouquetTimer = window.setTimeout(showBouquet, AUTO_BOUQUET_DELAY);
+    });
+
+    bouquetButton.addEventListener("click", showBouquet);
+  </script>
+</body>
+</html>
